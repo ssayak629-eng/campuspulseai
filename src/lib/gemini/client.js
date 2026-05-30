@@ -15,7 +15,7 @@ export function getGeminiClient() {
   return genAIInstance;
 }
 
-export function getGeminiModel(modelName = "gemini-1.5-flash") {
+export function getGeminiModel(modelName = "gemini-2.5-flash") {
   return getGeminiClient().getGenerativeModel({ model: modelName });
 }
 
