@@ -1,5 +1,5 @@
 "use client";
-
+// modify to check git
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -22,14 +22,14 @@ export function QRScanner({ onScan, onError }) {
     async function startCamera() {
       try {
         const { Html5Qrcode } = await import("html5-qrcode");
-        
+
         // Ensure element exists in DOM
         const element = document.getElementById("qr-scanner-element");
         if (!element) return;
 
         // 1. Get available cameras (this automatically prompts browser camera permission)
         const cameras = await Html5Qrcode.getCameras();
-        
+
         if (!mountedRef.current) return;
 
         if (!cameras || cameras.length === 0) {
@@ -44,9 +44,9 @@ export function QRScanner({ onScan, onError }) {
         for (const camera of cameras) {
           const label = camera.label.toLowerCase();
           if (
-            label.includes("back") || 
-            label.includes("rear") || 
-            label.includes("environment") || 
+            label.includes("back") ||
+            label.includes("rear") ||
+            label.includes("environment") ||
             label.includes("dir back")
           ) {
             selectedCamera = camera;
@@ -188,8 +188,8 @@ export function QRScanner({ onScan, onError }) {
   return (
     <div className="relative w-full max-w-sm mx-auto aspect-square rounded-2xl overflow-hidden bg-gray-950 border border-white/10 shadow-2xl flex flex-col items-center justify-center">
       {/* Target scanning div */}
-      <div 
-        id="qr-scanner-element" 
+      <div
+        id="qr-scanner-element"
         className="w-full h-full overflow-hidden rounded-2xl"
         style={{ position: "relative" }}
       />
@@ -221,11 +221,10 @@ export function QRScanner({ onScan, onError }) {
           {/* Focus button for low quality images */}
           <button
             onClick={handleFocus}
-            className={`absolute bottom-20 px-4 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${
-              isFocused
+            className={`absolute bottom-20 px-4 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${isFocused
                 ? "bg-cyan-500/90 text-white shadow-lg shadow-cyan-500/50"
                 : "bg-cyan-500/30 text-cyan-200 hover:bg-cyan-500/50"
-            } border border-cyan-400/50`}
+              } border border-cyan-400/50`}
           >
             📍 Focus
           </button>
