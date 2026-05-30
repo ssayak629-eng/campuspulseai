@@ -99,6 +99,7 @@ export default function CreateEventPage() {
     endDate: "",
     registrationDeadline: "",
     maxParticipants: "",
+    minMembers: "",
     posterUrl: "",
   });
   const [loading, setLoading] = useState(false);
@@ -141,6 +142,9 @@ export default function CreateEventPage() {
         registrationDeadline: toTimestamp(form.registrationDeadline),
         maxParticipants: form.maxParticipants
           ? parseInt(form.maxParticipants)
+          : undefined,
+        minMembers: form.minMembers
+          ? parseInt(form.minMembers)
           : undefined,
         posterUrl: form.posterUrl || undefined,
         createdBy: user._id,
@@ -379,6 +383,29 @@ export default function CreateEventPage() {
                   min="1"
                 />
               </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+                marginBottom: "1.25rem",
+              }}
+            >
+              <div>
+                <label style={labelStyle}>Min Members per Team</label>
+                <input
+                  id="min-members"
+                  type="number"
+                  value={form.minMembers}
+                  onChange={(e) => update("minMembers", e.target.value)}
+                  className="input-field"
+                  placeholder="e.g. 2"
+                  min="1"
+                />
+              </div>
+              <div />
             </div>
 
             <div style={inputStyle}>

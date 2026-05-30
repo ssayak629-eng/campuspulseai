@@ -12,114 +12,159 @@ export function QRScanner({ onScan, onError }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     let html5QrCode;
-    let isActive = true;
 
-    async function initScanner() {
+    async function startCamera() {
       try {
         const { Html5Qrcode } = await import("html5-qrcode");
         
-        // Ensure the element is mounted
+        // Ensure element exists in DOM
         const element = document.getElementById("qr-scanner-element");
         if (!element) return;
 
+        // 1. Get available cameras (this automatically prompts browser camera permission)
+        const cameras = await Html5Qrcode.getCameras();
+        
+        if (!mountedRef.current) return;
+
+        if (!cameras || cameras.length === 0) {
+          throw new Error("No cameras found on this device.");
+        }
+
+        setHasPermission(true);
+
+        // 2. Select appropriate camera
+        // Try to find a back/rear/environment camera first
+        let selectedCamera = cameras[0];
+        for (const camera of cameras) {
+          const label = camera.label.toLowerCase();
+          if (
+            label.includes("back") || 
+            label.includes("rear") || 
+            label.includes("environment") || 
+            label.includes("dir back")
+          ) {
+            selectedCamera = camera;
+            break;
+          }
+        }
+
+        // 3. Initialize Html5Qrcode
         html5QrCode = new Html5Qrcode("qr-scanner-element");
         scannerRef.current = html5QrCode;
 
-        // Try to start scanning with the back camera (environment) as default
+        // 4. Start scanning using selected camera ID
         await html5QrCode.start(
-          { facingMode: "environment" },
+          selectedCamera.id,
           {
             fps: 15,
             qrbox: (width, height) => {
               const size = Math.min(width, height) * 0.7;
-              return { width: Math.max(200, size), height: Math.max(200, size) };
+              return { width: Math.max(180, size), height: Math.max(180, size) };
             },
+            aspectRatio: 1.0,
           },
           (decodedText) => {
-            if (isActive) {
+            if (mountedRef.current) {
               onScan(decodedText);
             }
           },
           (errorMessage) => {
-            // Ignore scan errors (normal when camera frame has no QR code)
+            // Keep scanning, ignore normal frame errors
           }
         );
 
-        if (isActive) {
-          setHasPermission(true);
+        if (mountedRef.current) {
           setIsScanning(true);
         }
       } catch (err) {
-        console.error("Camera init error:", err);
-        if (isActive) {
+        console.error("Scanner startup error:", err);
+        if (mountedRef.current) {
           setHasPermission(false);
-          // Standard browser permission denied or camera not found
-          const friendlyMessage = err.toString().includes("NotAllowedError")
-            ? "Camera permission was denied. Please allow camera access in your browser settings to continue."
-            : "No active camera found or camera access was blocked. Please verify permissions and try again.";
-          setErrorMsg(friendlyMessage);
+          const errStr = err.toString();
+          if (errStr.includes("NotAllowedError") || errStr.includes("Permission denied")) {
+            setErrorMsg("Camera permission was denied. Please allow access in your browser settings and refresh.");
+          } else if (errStr.includes("NotFoundError") || errStr.includes("DevicesNotFound")) {
+            setErrorMsg("No camera device was detected on your system.");
+          } else {
+            setErrorMsg(err.message || "Failed to start camera. Please verify permissions.");
+          }
           if (onError) onError(err);
         }
       }
     }
 
-    initScanner();
+    startCamera();
 
     return () => {
-      isActive = false;
+      mountedRef.current = false;
       if (scannerRef.current) {
         const scanner = scannerRef.current;
         if (scanner.isScanning) {
           scanner.stop()
-            .then(() => scanner.clear())
-            .catch((err) => console.error("Error stopping scanner:", err));
+            .then(() => {
+              try {
+                scanner.clear();
+              } catch (e) {
+                console.error("Error clearing scanner after stop:", e);
+              }
+            })
+            .catch((err) => console.error("Error stopping scanner during cleanup:", err));
+        } else {
+          try {
+            scanner.clear();
+          } catch (e) {
+            console.error("Error clearing idle scanner:", e);
+          }
         }
       }
     };
   }, [onScan, onError]);
 
   const handleRetry = () => {
-    setHasPermission(null);
-    setErrorMsg("");
-    // Hard refresh or restart scanning state
     window.location.reload();
   };
 
   return (
-    <div className="relative w-full max-w-sm mx-auto aspect-square rounded-2xl overflow-hidden bg-gray-950/80 border border-white/10 shadow-2xl flex flex-col items-center justify-center">
-      {/* Target scanning container for html5-qrcode */}
-      <div id="qr-scanner-element" className="absolute inset-0 w-full h-full object-cover" />
+    <div className="relative w-full max-w-sm mx-auto aspect-square rounded-2xl overflow-hidden bg-gray-950 border border-white/10 shadow-2xl flex flex-col items-center justify-center">
+      {/* Target scanning div */}
+      <div 
+        id="qr-scanner-element" 
+        className="w-full h-full overflow-hidden rounded-2xl"
+        style={{ position: "relative" }}
+      />
 
       {/* Modern Scanning Overlay */}
       {isScanning && (
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10">
-          {/* Darkened outer region */}
-          <div className="absolute inset-0 bg-black/40" style={{
+          {/* Subtle darkened backdrop around scanning area */}
+          <div className="absolute inset-0 bg-black/45" style={{
             clipPath: 'polygon(0% 0%, 0% 100%, 15% 100%, 15% 15%, 85% 15%, 85% 85%, 15% 85%, 15% 100%, 100% 100%, 100% 0%)'
           }} />
 
           {/* Scanner Box frame */}
-          <div className="relative w-[70%] aspect-square border-2 border-indigo-500/20 rounded-xl flex items-center justify-center">
+          <div className="relative w-[70%] aspect-square border border-white/10 rounded-xl flex items-center justify-center">
             {/* Corner highlights */}
-            <div className="absolute -top-[2px] -left-[2px] w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-md" />
-            <div className="absolute -top-[2px] -right-[2px] w-6 h-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-md" />
-            <div className="absolute -bottom-[2px] -left-[2px] w-6 h-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-md" />
-            <div className="absolute -bottom-[2px] -right-[2px] w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-md" />
+            <div className="absolute -top-[2px] -left-[2px] w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-md animate-pulse" />
+            <div className="absolute -top-[2px] -right-[2px] w-6 h-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-md animate-pulse" />
+            <div className="absolute -bottom-[2px] -left-[2px] w-6 h-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-md animate-pulse" />
+            <div className="absolute -bottom-[2px] -right-[2px] w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-md animate-pulse" />
 
             {/* Glowing moving laser line */}
             <div className="absolute w-[92%] h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-scan" />
           </div>
 
-          <p className="absolute bottom-6 text-xs text-cyan-200 font-medium tracking-wide bg-black/70 px-4 py-1.5 rounded-full border border-cyan-500/20 backdrop-blur-md">
+          <p className="absolute bottom-6 text-[11px] text-cyan-200 font-medium tracking-wide bg-black/85 px-4 py-1.5 rounded-full border border-cyan-500/20 backdrop-blur-md">
             Align QR Code inside the frame
           </p>
         </div>
       )}
 
-      {/* Requesting Permission / Loading State */}
+      {/* Loading State */}
       {hasPermission === null && !errorMsg && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 z-20 p-6 text-center">
           <div className="relative w-12 h-12 mb-4">
@@ -135,7 +180,7 @@ export function QRScanner({ onScan, onError }) {
 
       {/* Error/Denied State */}
       {hasPermission === false && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950/95 z-20 p-6 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 z-20 p-6 text-center">
           <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center justify-center mb-4 text-2xl">
             📷
           </div>

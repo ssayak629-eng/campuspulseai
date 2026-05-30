@@ -70,12 +70,14 @@ export const createEvent = mutation({
     endDate: v.number(),
     registrationDeadline: v.number(),
     maxParticipants: v.optional(v.number()),
+    minMembers: v.optional(v.number()),
     posterUrl: v.optional(v.string()),
     createdBy: v.id("users"),
   },
   handler: async (ctx, args) => {
     const eventId = await ctx.db.insert("events", {
       ...args,
+      minMembers: args.minMembers ?? 1,
       viewCount: 0,
       likeCount: 0,
       registrationCount: 0,
@@ -108,6 +110,7 @@ export const updateEvent = mutation({
     endDate: v.optional(v.number()),
     registrationDeadline: v.optional(v.number()),
     maxParticipants: v.optional(v.number()),
+    minMembers: v.optional(v.number()),
     posterUrl: v.optional(v.string()),
     embedding: v.optional(v.array(v.float64())),
   },

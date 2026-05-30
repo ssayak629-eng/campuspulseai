@@ -5,7 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import Navbar from "../../components/layout/Navbar";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sparkles, RefreshCw, ChevronDown, ChevronUp,
   Brain, Users, TrendingUp, Clock, Zap, Calendar, MapPin, ArrowRight
@@ -85,6 +85,31 @@ function RecommendationCard({ recommendation, index }) {
             </span>
           </div>
 
+          {/* AI Advisor Message */}
+          {recommendation.aiMessage && (
+            <div style={{
+              background: "rgba(99,102,241,0.06)",
+              border: "1px solid rgba(99,102,241,0.18)",
+              borderRadius: "var(--radius-md)",
+              padding: "0.75rem 1rem",
+              marginBottom: "1rem",
+              fontSize: "0.82rem",
+              lineHeight: 1.45,
+              color: "#a5b4fc",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "0.6rem",
+            }}>
+              <Sparkles size={16} color="#c084fc" style={{ flexShrink: 0, marginTop: 2, filter: "drop-shadow(0 0 6px rgba(192,132,252,0.6))" }} />
+              <div>
+                <strong style={{ color: "white", display: "block", fontSize: "0.72rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.05em", marginBottom: "0.25rem" }}>
+                  ✨ AI Advisor recommendation
+                </strong>
+                {recommendation.aiMessage}
+              </div>
+            </div>
+          )}
+
           {/* Explanations */}
           <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
             {explanation.slice(0, 3).map((reason, i) => (
@@ -144,6 +169,11 @@ export default function RecommendationsPage() {
   const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchRecommendations = async () => {
     if (!user) return;
@@ -184,7 +214,7 @@ export default function RecommendationsPage() {
           <button
             id="get-recommendations-btn"
             onClick={fetchRecommendations}
-            disabled={loading || !user}
+            disabled={!mounted || loading || !user}
             className="btn-primary"
             style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}
           >
@@ -227,7 +257,7 @@ export default function RecommendationsPage() {
             </p>
             <button
               onClick={fetchRecommendations}
-              disabled={!user}
+              disabled={!mounted || !user}
               className="btn-primary"
               style={{ fontSize: "1rem", padding: "0.75rem 2rem" }}
             >

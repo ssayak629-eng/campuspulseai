@@ -29,6 +29,7 @@ const navLinks = [
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/recommendations", label: "For You", icon: Star },
   { href: "/teams", label: "Teams", icon: Users },
+  { href: "/friends", label: "Friends", icon: Users },
   { href: "/analytics", label: "Analytics", icon: BarChart2 },
   { href: "/qr-checkin", label: "QR Check-in", icon: QrCode },
   { href: "/profile", label: "Profile", icon: User },
@@ -135,7 +136,7 @@ export default function Navbar() {
             }}
             className="hidden-mobile"
           >
-            {navLinks.slice(0, 5).map(({ href, label, icon: Icon }) => (
+            {navLinks.slice(0, 6).map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
