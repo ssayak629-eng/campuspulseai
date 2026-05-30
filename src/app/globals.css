@@ -1,52 +1,64 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700&display=swap");
 @import "tailwindcss";
 
-/* ── CSS Custom Properties ────────────────────────────────────────────────── */
+/* ── CSS Custom Properties & Playful Tokens ─────────────────────────────── */
 :root {
-  /* Colors */
-  --bg-primary: #0a0f1e;
-  --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.8);
-  --bg-elevated: #1f2937;
+  /* Warm Vintage Cream & Slate Neutral Anchors */
+  --bg-primary: #FAF3E0;           /* Rich vintage cream paper feel */
+  --bg-secondary: #FAF3E0;
+  --bg-card: #FFFDF9;              /* Warm eggshell card base */
+  --bg-elevated: #F3E9D2;          /* Rich vintage panel fill */
 
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-secondary: #8b5cf6;
-  --color-accent: #06b6d4;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  --text-primary: #1E293B;         /* Slate 800 (Highly legible text) */
+  --text-secondary: #5C6F84;       /* Slate 500 */
+  --text-muted: #94A3B8;
 
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  /* Playful Saturation (Memphis Candy Palette) */
+  --color-primary: #8B5CF6;        /* Vivid Violet (Primary Actions) */
+  --color-primary-hover: #7C3AED;
+  --color-secondary: #F472B6;      /* Hot Pink (Playful pop) */
+  --color-accent: #FBBF24;         /* Amber Yellow (Optimism highlight) */
+  --color-success: #34D399;        /* Mint Green (Freshness) */
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;         /* Friendly red-coral */
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
+  --border: #1E293B;               /* Chunky Slate 800 borders (2px) */
+  --border-hover: #1E293B;
+  --shadow-color: #1E293B;         /* Dark Pop Shadow */
+  --dot-color: rgba(30, 41, 59, 0.12);
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
-  --gradient-hero: linear-gradient(135deg, #0a0f1e 0%, #1a0533 50%, #0a1628 100%);
-  --gradient-card: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.05) 100%);
+  /* Typography Font Stacks */
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
 
-  /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
-  --shadow-glow-cyan: 0 0 40px rgba(6, 182, 212, 0.2);
-
-  /* Border radius */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-
-  /* Typography */
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Inter", sans-serif;
+  /* Playful Radii */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
 }
 
-/* ── Base Styles ──────────────────────────────────────────────────────────── */
+.dark {
+  /* Memphis Playful Geometric Dark Mode */
+  --bg-primary: #0F172A;           /* Deep dark slate */
+  --bg-secondary: #0F172A;
+  --bg-card: #1E293B;              /* Slate 800 cards */
+  --bg-elevated: #0F172A;
+
+  --text-primary: #FFFDF5;         /* Warm eggshell text */
+  --text-secondary: #94A3B8;       /* Slate 400 */
+  --text-muted: #64748B;
+
+  --color-primary: #A78BFA;        /* Brightened Violet for high contrast */
+  --color-primary-hover: #8B5CF6;
+  
+  --border: #FFFDF5;               /* Chunky cream borders! */
+  --border-hover: #FFFDF5;
+  --shadow-color: #000000;         /* Pure black pop shadows */
+  --dot-color: rgba(255, 253, 245, 0.12);
+}
+
+/* ── Base Playful Reset ─────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -64,193 +76,287 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+/* ── Playful Toy Scrollbar ──────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
+  border-left: 2px solid var(--border);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.4);
-  border-radius: 3px;
+  background: var(--color-accent);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.7);
+  background: var(--color-secondary);
 }
 
-/* ── Glassmorphism Card ───────────────────────────────────────────────────── */
-.glass-card {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+/* ── Tactile Polka-Dot Grid Background ──────────────────────────────────── */
+.dot-grid {
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
 }
 
-.glass-card:hover {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-card), 0 0 20px rgba(99, 102, 241, 0.1);
-  transform: translateY(-2px);
+/* ── 3D Hard "Pop" Shadows (No Blur, Solid Slate Offsets) ────────────────── */
+.pop-shadow {
+  box-shadow: 4px 4px 0px 0px var(--shadow-color);
+  border: 2px solid var(--border);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ── Gradient Text ────────────────────────────────────────────────────────── */
-.gradient-text {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.pop-shadow:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
+}
+
+.pop-shadow:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px var(--shadow-color);
+}
+
+/* Large card shadows */
+.pop-shadow-card {
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
+  border: 2px solid var(--border);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pop-shadow-card:hover {
+  transform: scale(1.015) rotate(-0.5deg);
+  box-shadow: 8px 8px 0px 0px var(--color-secondary); /* Pink shadow on hover */
+}
+
+/* ── Special Geometric Blob Shapes (Radii Splitting) ───────────────────── */
+.speech-bubble {
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 0px;
+}
+
+.blob-leaf {
+  border-radius: var(--radius-xl) 0px var(--radius-xl) var(--radius-xl);
+}
+
+.arch-top {
+  border-radius: var(--radius-xl) var(--radius-xl) 0px 0px;
+}
+
+/* ── Reusable Candy Card Primitive ───────────────────────────────────────── */
+.glass-card, .cyber-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 5px 5px 0px 0px var(--shadow-color);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.glass-card:hover, .cyber-card:hover {
+  transform: scale(1.02) rotate(-0.8deg);
+  box-shadow: 7px 7px 0px 0px var(--color-secondary); /* Interactive pink outline shadow */
+}
+
+/* Featured card variant */
+.cyber-card-featured {
+  border-color: var(--border);
+  box-shadow: 6px 6px 0px 0px var(--color-accent);
+}
+.cyber-card-featured:hover {
+  box-shadow: 8px 8px 0px 0px var(--color-primary);
+}
+
+/* ── High-Contrast Typography ────────────────────────────────────────────── */
+.gradient-text, .gradient-text-accent {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: unset;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 800;
+  border-bottom: 3px dashed var(--color-accent);
+  padding-bottom: 2px;
 }
 
 .gradient-text-accent {
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* ── Primary Button ───────────────────────────────────────────────────────── */
-.btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-  font-weight: 600;
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-md);
-  border: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-}
-
-.btn-primary:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-secondary {
-  background: transparent;
   color: var(--color-primary);
-  font-weight: 600;
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-primary);
+  border-bottom-color: var(--color-secondary);
+}
+
+/* Friendly glitch header alternative */
+.cyber-glitch {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+/* ── Chunky Candy Buttons ───────────────────────────────────────────────── */
+.btn-primary, .cyber-btn {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  background: var(--color-primary);
+  color: var(--bg-primary);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px 0px var(--shadow-color);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.btn-secondary:hover {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: var(--color-primary);
+.btn-primary:hover, .cyber-btn:hover {
+  background: var(--color-primary-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
 }
 
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-  font-weight: 500;
-  padding: 0.6rem 1.25rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+.btn-primary:active, .cyber-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px var(--shadow-color);
+}
+
+/* Secondary (Amber Yellow) Button */
+.btn-secondary, .cyber-btn-secondary {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  background: var(--color-accent);
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px 0px var(--shadow-color);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.btn-ghost:hover {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  border-color: var(--border-hover);
+.btn-secondary:hover, .cyber-btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
 }
 
-/* ── Input ────────────────────────────────────────────────────────────────── */
-.input-field {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+/* Outline / Ghost Button (Fills with Amber on hover) */
+.btn-ghost, .cyber-btn-outline {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  background: var(--bg-card);
   color: var(--text-primary);
-  padding: 0.65rem 1rem;
-  width: 100%;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.65rem 1.5rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: 2px 2px 0px 0px var(--shadow-color);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-ghost:hover, .cyber-btn-outline:hover {
+  background: var(--color-accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px var(--shadow-color);
+}
+
+.btn-ghost:active, .cyber-btn-outline:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px var(--shadow-color);
+}
+
+/* ── Playful Form Inputs ────────────────────────────────────────────────── */
+.input-field, .cyber-input {
+  background: var(--bg-card);
+  border: 2px solid #CBD5E1;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  width: 100%;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 3px 3px 0px 0px transparent;
 }
 
-.input-field:focus {
+.input-field:focus, .cyber-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 3px 3px 0px 0px var(--color-primary);
 }
 
-.input-field::placeholder {
+.input-field::placeholder, .cyber-input::placeholder {
   color: var(--text-muted);
 }
 
-/* ── Badge ────────────────────────────────────────────────────────────────── */
+/* ── Candy Badge capsules ───────────────────────────────────────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.65rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  gap: 0.35rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid var(--border);
+  color: var(--text-primary);
+  box-shadow: 2px 2px 0px 0px var(--shadow-color);
 }
 
 .badge-primary {
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: var(--color-primary);
+  color: white;
 }
 
 .badge-success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--color-success);
 }
 
 .badge-warning {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fcd34d;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: var(--color-accent);
 }
 
 .badge-danger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: var(--color-danger);
+  color: white;
 }
 
 .badge-cyan {
-  background: rgba(6, 182, 212, 0.15);
-  color: #67e8f9;
-  border: 1px solid rgba(6, 182, 212, 0.25);
+  background: var(--color-secondary);
 }
 
-/* ── Animations ───────────────────────────────────────────────────────────── */
+/* ── Elastic Transitions & Animations ───────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 0; transform: translateX(-12px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(3deg); }
+  75% { transform: rotate(-3deg); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
 }
 
 @keyframes shimmer {
@@ -258,38 +364,35 @@ body {
   100% { background-position: 200% 0; }
 }
 
-.animate-fade-in { animation: fadeIn 0.4s ease forwards; }
-.animate-slide-left { animation: slideInLeft 0.4s ease forwards; }
-.animate-float { animation: float 3s ease-in-out infinite; }
-.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-fade-in { animation: fadeIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-slide-left { animation: slideInLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-wiggle:hover { animation: wiggle 0.4s ease infinite; }
+.animate-marquee { animation: marquee 20s linear infinite; }
 
-/* ── Skeleton Loading ─────────────────────────────────────────────────────── */
+/* ── Dot Grid Wireframe Loaders ─────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--bg-secondary) 25%,
-    var(--bg-elevated) 50%,
-    var(--bg-secondary) 75%
-  );
+  background: var(--bg-elevated);
+  border: 2px dashed var(--border);
+  animation: shimmer 2s infinite linear;
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
   border-radius: var(--radius-md);
 }
 
-/* ── Layout ───────────────────────────────────────────────────────────────── */
+/* ── Geometric Grid Layouts ─────────────────────────────────────────────── */
 .page-container {
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
 .section-header {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 1.75rem;
 }
 
-/* ── Sidebar Layout ───────────────────────────────────────────────────────── */
+/* ── Dynamic Sidebar ────────────────────────────────────────────────────── */
 .sidebar-layout {
   display: flex;
   min-height: 100vh;
@@ -298,9 +401,8 @@ body {
 .sidebar {
   width: 260px;
   flex-shrink: 0;
-  background: rgba(17, 24, 39, 0.95);
-  border-right: 1px solid var(--border);
-  backdrop-filter: blur(20px);
+  background: var(--bg-card);
+  border-right: 2px solid var(--border);
   position: sticky;
   top: 0;
   height: 100vh;
@@ -312,113 +414,103 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Glow Effects ─────────────────────────────────────────────────────────── */
-.glow-primary {
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-}
-
-.glow-accent {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
-}
-
-/* ── Recharts Overrides ───────────────────────────────────────────────────── */
+/* ── Interactive Recharts Vectors ───────────────────────────────────────── */
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line {
-  stroke: rgba(255, 255, 255, 0.05);
+  stroke: var(--border);
+  stroke-width: 1.5px;
 }
 
 .recharts-text {
-  fill: #9ca3af;
-  font-size: 12px;
+  fill: var(--text-primary);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 10px;
 }
 
 .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background: var(--bg-elevated) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-card) !important;
+  background: var(--bg-card) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 4px 4px 0px 0px var(--shadow-color) !important;
+  font-family: var(--font-sans) !important;
 }
 
-/* ── Tag Input ────────────────────────────────────────────────────────────── */
+/* ── Playful Chip inputs ────────────────────────────────────────────────── */
 .tag-input-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.5rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  gap: 0.5rem;
+  padding: 0.65rem;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
   min-height: 2.75rem;
   align-items: center;
+  box-shadow: 3px 3px 0px 0px var(--shadow-color);
 }
 
 .tag-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
-  padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  gap: 0.35rem;
+  background: var(--color-accent);
+  border: 2px solid var(--border);
+  color: var(--text-primary);
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  box-shadow: 1.5px 1.5px 0px 0px var(--shadow-color);
 }
 
 .tag-chip button {
-  color: #818cf8;
+  color: var(--text-primary);
   cursor: pointer;
-  line-height: 1;
-  padding: 0;
   background: none;
   border: none;
+  font-weight: 800;
 }
 
 .tag-chip button:hover {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
-/* ── Notification dot ─────────────────────────────────────────────────────── */
+/* ── Tactile Toy Alerts ─────────────────────────────────────────────────── */
 .notification-dot {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 1px;
+  right: 1px;
   width: 8px;
   height: 8px;
-  background: #ef4444;
-  border-radius: 50%;
-  border: 2px solid var(--bg-primary);
-  animation: pulse-glow 2s infinite;
+  background: var(--color-secondary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
 }
 
-/* ── QR Container ─────────────────────────────────────────────────────────── */
+/* ── QR sticker Box ──────────────────────────────────────────────────────── */
 .qr-container {
-  background: white;
-  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 1.25rem;
   display: inline-flex;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 6px 6px 0px 0px var(--shadow-color);
 }
 
-/* ── Hero Mesh Gradient ───────────────────────────────────────────────────── */
-.hero-mesh {
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
-}
-
-/* ── Score Bar ────────────────────────────────────────────────────────────── */
+/* ── Tactile Score Bars ─────────────────────────────────────────────────── */
 .score-bar {
-  height: 6px;
-  border-radius: 3px;
+  height: 10px;
   background: var(--bg-elevated);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .score-bar-fill {
   height: 100%;
-  border-radius: 3px;
-  background: var(--gradient-primary);
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
