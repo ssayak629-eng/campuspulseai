@@ -58,11 +58,6 @@ export function QRScanner({ onScan, onError }) {
         html5QrCode = new Html5Qrcode("qr-scanner-element");
         scannerRef.current = html5QrCode;
 
-<<<<<<< Updated upstream
-        // 4. Start scanning using selected camera ID
-        await html5QrCode.start(
-          selectedCamera.id,
-=======
         // Try to start scanning with the back camera (environment) as default
         // Request enhanced camera capabilities for better low-quality image handling
         const constraints = {
@@ -80,14 +75,9 @@ export function QRScanner({ onScan, onError }) {
 
         await html5QrCode.start(
           constraints,
->>>>>>> Stashed changes
           {
             fps: 30, // Higher FPS for better low-light and low-quality image handling
             qrbox: (width, height) => {
-<<<<<<< Updated upstream
-              const size = Math.min(width, height) * 0.7;
-              return { width: Math.max(180, size), height: Math.max(180, size) };
-=======
               // Larger scanning area to capture QR codes better
               const size = Math.min(width, height) * 0.8;
               return { width: Math.max(250, size), height: Math.max(250, size) };
@@ -99,9 +89,7 @@ export function QRScanner({ onScan, onError }) {
             ],
             experimentalFeatures: {
               useBarkoderIfAvailable: true,
->>>>>>> Stashed changes
             },
-            aspectRatio: 1.0,
           },
           (decodedText) => {
             if (mountedRef.current) {
@@ -113,9 +101,6 @@ export function QRScanner({ onScan, onError }) {
           }
         );
 
-<<<<<<< Updated upstream
-        if (mountedRef.current) {
-=======
         // Configure additional decoders for better low-quality image support
         const QrcodeDecoderWorker = await import("html5-qrcode/esm/workers/qrcode_decoder_worker.js").catch(() => null);
         if (html5QrCode && typeof html5QrCode.getState === "function") {
@@ -130,9 +115,8 @@ export function QRScanner({ onScan, onError }) {
           }
         }
 
-        if (isActive) {
+        if (mountedRef.current) {
           setHasPermission(true);
->>>>>>> Stashed changes
           setIsScanning(true);
         }
       } catch (err) {
