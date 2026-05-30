@@ -11,6 +11,7 @@ export function QRScanner({ onScan, onError }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const scannerRef = useRef(null);
   const mountedRef = useRef(true);
 
@@ -57,14 +58,48 @@ export function QRScanner({ onScan, onError }) {
         html5QrCode = new Html5Qrcode("qr-scanner-element");
         scannerRef.current = html5QrCode;
 
+<<<<<<< Updated upstream
         // 4. Start scanning using selected camera ID
         await html5QrCode.start(
           selectedCamera.id,
+=======
+        // Try to start scanning with the back camera (environment) as default
+        // Request enhanced camera capabilities for better low-quality image handling
+        const constraints = {
+          facingMode: "environment",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          video: {
+            focusMode: "continuous",
+            torch: false,
+            whiteBalanceMode: "continuous",
+            exposureMode: "continuous",
+            colorTemperature: { ideal: 6500 },
+          }
+        };
+
+        await html5QrCode.start(
+          constraints,
+>>>>>>> Stashed changes
           {
-            fps: 15,
+            fps: 30, // Higher FPS for better low-light and low-quality image handling
             qrbox: (width, height) => {
+<<<<<<< Updated upstream
               const size = Math.min(width, height) * 0.7;
               return { width: Math.max(180, size), height: Math.max(180, size) };
+=======
+              // Larger scanning area to capture QR codes better
+              const size = Math.min(width, height) * 0.8;
+              return { width: Math.max(250, size), height: Math.max(250, size) };
+            },
+            aspectRatio: 1.0,
+            disableFlip: false,
+            formatsToSupport: [
+              Html5Qrcode.SupportedFormats.QR_CODE,
+            ],
+            experimentalFeatures: {
+              useBarkoderIfAvailable: true,
+>>>>>>> Stashed changes
             },
             aspectRatio: 1.0,
           },
@@ -78,7 +113,26 @@ export function QRScanner({ onScan, onError }) {
           }
         );
 
+<<<<<<< Updated upstream
         if (mountedRef.current) {
+=======
+        // Configure additional decoders for better low-quality image support
+        const QrcodeDecoderWorker = await import("html5-qrcode/esm/workers/qrcode_decoder_worker.js").catch(() => null);
+        if (html5QrCode && typeof html5QrCode.getState === "function") {
+          try {
+            // Use more aggressive scanning with multi-format decoder
+            const state = html5QrCode.getState();
+            if (state && state.decoderInstance) {
+              state.decoderInstance.setMediaBitMultiplier(2); // Boost signal strength for low quality
+            }
+          } catch (e) {
+            // Silently handle if advanced configuration unavailable
+          }
+        }
+
+        if (isActive) {
+          setHasPermission(true);
+>>>>>>> Stashed changes
           setIsScanning(true);
         }
       } catch (err) {
@@ -129,6 +183,24 @@ export function QRScanner({ onScan, onError }) {
     window.location.reload();
   };
 
+  const handleFocus = async () => {
+    if (scannerRef.current && typeof scannerRef.current.getRunningTrackSettings === "function") {
+      try {
+        const settings = await scannerRef.current.getRunningTrackSettings();
+        if (settings.focusMode === "continuous") {
+          // Trigger a manual focus attempt
+          const track = scannerRef.current.getRunningTrackCameraCapabilities?.();
+          if (track && track.focusDistance) {
+            setIsFocused(true);
+            setTimeout(() => setIsFocused(false), 500);
+          }
+        }
+      } catch (e) {
+        console.log("Focus control not available on this device");
+      }
+    }
+  };
+
   return (
     <div className="relative w-full max-w-sm mx-auto aspect-square rounded-2xl overflow-hidden bg-gray-950 border border-white/10 shadow-2xl flex flex-col items-center justify-center">
       {/* Target scanning div */}
@@ -161,6 +233,18 @@ export function QRScanner({ onScan, onError }) {
           <p className="absolute bottom-6 text-[11px] text-cyan-200 font-medium tracking-wide bg-black/85 px-4 py-1.5 rounded-full border border-cyan-500/20 backdrop-blur-md">
             Align QR Code inside the frame
           </p>
+
+          {/* Focus button for low quality images */}
+          <button
+            onClick={handleFocus}
+            className={`absolute bottom-20 px-4 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${
+              isFocused
+                ? "bg-cyan-500/90 text-white shadow-lg shadow-cyan-500/50"
+                : "bg-cyan-500/30 text-cyan-200 hover:bg-cyan-500/50"
+            } border border-cyan-400/50`}
+          >
+            📍 Focus
+          </button>
         </div>
       )}
 
