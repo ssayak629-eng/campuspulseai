@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useCurrentUser } from "../../../hooks/useCurrentUser";
-import Navbar from "../../../components/layout/Navbar";
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { useCurrentUser } from "../../../../hooks/useCurrentUser";
+import Navbar from "../../../../components/layout/Navbar";
 import {
   Upload,
   X,
@@ -84,10 +84,20 @@ function TagInput({ tags, onChange, placeholder }) {
   );
 }
 
-export default function CreateEventPage() {
+// Convert timestamp to datetime-local format
+const formatDateTimeLocal = (timestamp) => {
+  if (!timestamp) return "";
+  const date = new Date(timestamp);
+  return date.toISOString().slice(0, 16);
+};
+
+export default function EditEventPage() {
   const router = useRouter();
+  const params = useParams();
+  const eventId = params.eventId;
   const { user } = useCurrentUser();
-  const createEvent = useMutation(api.events.createEvent);
+  const event = useQuery(api.events.getEventById, { eventId });
+  const updateEvent = useMutation(api.events.updateEvent);
 
   const [form, setForm] = useState({
     title: "",
@@ -99,14 +109,77 @@ export default function CreateEventPage() {
     endDate: "",
     registrationDeadline: "",
     maxParticipants: "",
-    minMembers: "",
     posterUrl: "",
   });
   const [loading, setLoading] = useState(false);
   const [posterPreview, setPosterPreview] = useState(null);
   const fileRef = useRef();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize form with event data
+  useEffect(() => {
+    if (event && !isInitialized) {
+      setForm({
+        title: event.title || "",
+        description: event.description || "",
+        category: event.category || "Technology",
+        tags: event.tags || [],
+        venue: event.venue || "",
+        startDate: formatDateTimeLocal(event.startDate),
+        endDate: formatDateTimeLocal(event.endDate),
+        registrationDeadline: formatDateTimeLocal(event.registrationDeadline),
+        maxParticipants: event.maxParticipants?.toString() || "",
+        posterUrl: event.posterUrl || "",
+      });
+      if (event.posterUrl) {
+        setPosterPreview(event.posterUrl);
+      }
+      setIsInitialized(true);
+    }
+  }, [event, isInitialized]);
 
   const update = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+
+  // Check if user is event organizer
+  const isOrganizer = event && user && event.createdBy === user._id;
+
+  if (!event) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+        <Navbar />
+        <main
+          style={{
+            maxWidth: 720,
+            margin: "0 auto",
+            padding: "2rem 1.5rem",
+            textAlign: "center",
+          }}
+        >
+          <p style={{ color: "var(--text-secondary)" }}>Loading event...</p>
+        </main>
+      </div>
+    );
+  }
+
+  if (!isOrganizer) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+        <Navbar />
+        <main
+          style={{
+            maxWidth: 720,
+            margin: "0 auto",
+            padding: "2rem 1.5rem",
+            textAlign: "center",
+          }}
+        >
+          <p style={{ color: "var(--text-secondary)" }}>
+            You don't have permission to edit this event.
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   // Poster upload
   const handlePosterUpload = (e) => {
@@ -124,14 +197,15 @@ export default function CreateEventPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !isOrganizer) return;
     setLoading(true);
 
     try {
       const toTimestamp = (str) =>
         str ? new Date(str).getTime() : Date.now() + 86400000;
 
-      const eventId = await createEvent({
+      await updateEvent({
+        eventId,
         title: form.title,
         description: form.description,
         category: form.category,
@@ -143,11 +217,7 @@ export default function CreateEventPage() {
         maxParticipants: form.maxParticipants
           ? parseInt(form.maxParticipants)
           : undefined,
-        minMembers: form.minMembers
-          ? parseInt(form.minMembers)
-          : undefined,
         posterUrl: form.posterUrl || undefined,
-        createdBy: user._id,
       });
 
       router.push(`/events/${eventId}`);
@@ -200,9 +270,9 @@ export default function CreateEventPage() {
               marginBottom: "0.35rem",
             }}
           >
-            Create New Event
+            Edit Event
           </h1>
-          <p style={{ color: "var(--text-secondary)" }}>Upload a poster</p>
+          <p style={{ color: "var(--text-secondary)" }}>Update event details</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -385,29 +455,6 @@ export default function CreateEventPage() {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "1rem",
-                marginBottom: "1.25rem",
-              }}
-            >
-              <div>
-                <label style={labelStyle}>Min Members per Team</label>
-                <input
-                  id="min-members"
-                  type="number"
-                  value={form.minMembers}
-                  onChange={(e) => update("minMembers", e.target.value)}
-                  className="input-field"
-                  placeholder="e.g. 2"
-                  min="1"
-                />
-              </div>
-              <div />
-            </div>
-
             <div style={inputStyle}>
               <label style={labelStyle}>Tags (press Enter to add)</label>
               <TagInput
@@ -503,7 +550,7 @@ export default function CreateEventPage() {
                 Cancel
               </button>
               <button
-                id="create-event-btn"
+                id="save-event-btn"
                 type="submit"
                 className="btn-primary"
                 disabled={loading}
@@ -515,12 +562,12 @@ export default function CreateEventPage() {
                       size={15}
                       style={{ animation: "spin 1s linear infinite" }}
                     />
-                    Creating...
+                    Saving...
                   </>
                 ) : (
                   <>
                     <Plus size={15} />
-                    Create Event
+                    Save Changes
                   </>
                 )}
               </button>

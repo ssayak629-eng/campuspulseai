@@ -29,6 +29,7 @@ const navLinks = [
   { href: "/events", label: "Events", icon: Calendar },
   { href: "/recommendations", label: "For You", icon: Star },
   { href: "/teams", label: "Teams", icon: Users },
+  { href: "/friends", label: "Friends", icon: Users },
   { href: "/analytics", label: "Analytics", icon: BarChart2 },
   { href: "/qr-checkin", label: "QR Check-in", icon: QrCode },
   { href: "/profile", label: "Profile", icon: User },
@@ -149,8 +150,6 @@ export default function Navbar() {
               Campus<span style={{ color: "var(--color-primary)" }}>Pulse</span>
             </span>
           </Link>
-
-
 
           {/* Right Section tools */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginLeft: "auto" }}>
