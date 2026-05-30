@@ -36,6 +36,7 @@ export default defineSchema({
     endDate: v.number(),
     registrationDeadline: v.number(),
     maxParticipants: v.optional(v.number()),
+    minMembers: v.optional(v.number()),
     posterUrl: v.optional(v.string()),
     embedding: v.optional(v.array(v.float64())),
     createdBy: v.id("users"),
@@ -82,6 +83,7 @@ export default defineSchema({
     teamId: v.id("teams"),
     userId: v.id("users"),
     joinedAt: v.number(),
+    status: v.optional(v.string()), // "accepted", "pending"
   })
     .index("by_team", ["teamId"])
     .index("by_user", ["userId"])

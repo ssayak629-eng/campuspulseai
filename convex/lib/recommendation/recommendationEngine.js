@@ -36,7 +36,7 @@ export function runRecommendationEngine(
       attended: [],
     };
 
-    const semantic = computeSemanticScore(user.embedding, event.embedding);
+    const semantic = computeSemanticScore(user.embedding, event.embedding, user, event);
     const social = computeSocialScore(friendIds, eventActivity);
     const trend = computeTrendScore(event, platformAverages);
     const deadline = computeDeadlineScore(event.registrationDeadline);

@@ -83,3 +83,22 @@ export const areFriends = query({
     return !!friendship;
   },
 });
+
+// ─── Remove friendship ────────────────────────────────────────────────────────
+export const removeFriendship = mutation({
+  args: { user1: v.id("users"), user2: v.id("users") },
+  handler: async (ctx, { user1, user2 }) => {
+    const [u1, u2] = [user1, user2].sort();
+    const existing = await ctx.db
+      .query("friendships")
+      .withIndex("by_user1", (q) => q.eq("user1", u1))
+      .filter((q) => q.eq(q.field("user2"), u2))
+      .unique();
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+      return true;
+    }
+    return false;
+  },
+});

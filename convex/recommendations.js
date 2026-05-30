@@ -55,6 +55,59 @@ export const getRecommendations = action({
       limit
     );
 
+    // ── 6. Generate and enrich with Gemini AI recommendation messages ─────────
+    const genAIKey = process.env.GEMINI_API_KEY;
+    if (genAIKey && recommendations.length > 0) {
+      try {
+        const { GoogleGenerativeAI } = await import("@google/generative-ai");
+        const genAI = new GoogleGenerativeAI(genAIKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        // Generate messages for the top 3 recommended events in parallel
+        await Promise.all(
+          recommendations.slice(0, 3).map(async (rec) => {
+            const semanticPercent = Math.round(rec.scores.semantic * 100);
+            
+            const prompt = `
+You are CampusPulseAI's intelligent event advisor. Write a personalized, highly engaging, one-sentence recommendation message explaining why this campus event is a great fit for the student.
+
+Student Profile:
+- Name: ${user.name}
+- Department: ${user.department || "General"}
+- Year: ${user.year || "Unknown"}
+- Interests: ${user.interests?.join(", ") || "None specified"}
+- Skills: ${user.skills?.join(", ") || "None specified"}
+
+Event Details:
+- Title: ${rec.event.title}
+- Description: ${rec.event.description}
+- Category: ${rec.event.category}
+- Tags: ${rec.event.tags?.join(", ") || "None"}
+
+AI Scoring Analysis:
+- Semantic Alignment Match: ${semanticPercent}%
+
+Requirements:
+- Keep the response to exactly one sentence.
+- Sound encouraging, smart, and peer-like.
+- Explicitly reference their specific interests/skills or department AND the semantic match percentage (e.g. "${semanticPercent}% semantic match") in a natural way.
+- Do not mention technical prompt details. Keep it conversational.
+`;
+
+            try {
+              const response = await model.generateContent(prompt);
+              const text = response.response.text().trim().replace(/^"|"$/g, '');
+              rec.aiMessage = text;
+            } catch (err) {
+              console.error("Gemini recommendation message generation failed for event:", rec.event.title, err);
+            }
+          })
+        );
+      } catch (err) {
+        console.error("Failed to initialize Gemini for recommendation messages:", err);
+      }
+    }
+
     return recommendations;
   },
 });
