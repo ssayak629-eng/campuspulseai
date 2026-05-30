@@ -32,6 +32,7 @@ import type * as notifications from "../notifications.js";
 import type * as organizers from "../organizers.js";
 import type * as recommendations from "../recommendations.js";
 import type * as registrations from "../registrations.js";
+import type * as seed from "../seed.js";
 import type * as teams from "../teams.js";
 import type * as users from "../users.js";
 
@@ -66,6 +67,7 @@ declare const fullApi: ApiFromModules<{
   organizers: typeof organizers;
   recommendations: typeof recommendations;
   registrations: typeof registrations;
+  seed: typeof seed;
   teams: typeof teams;
   users: typeof users;
 }>;
