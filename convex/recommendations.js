@@ -14,18 +14,54 @@ export const getRecommendations = action({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, { userId, limit = 10 }) => {
-    // ── 1. Fetch user ──────────────────────────────────────────────────────────
-    const user = await ctx.runQuery(api.users.getUserById, { userId });
+    const genAIKey = process.env.GEMINI_API_KEY;
+
+    // ── 1. Fetch user & dynamically generate embedding if missing ──────────────────
+    let user = await ctx.runQuery(api.users.getUserById, { userId });
     if (!user) throw new Error("User not found");
 
-    // ── 2. Fetch active events ─────────────────────────────────────────────────
+    if (genAIKey && (!user.embedding || user.embedding.length === 0)) {
+      try {
+        console.log(`[AI recommendations] Dynamically generating vector embedding for user: ${user.name}`);
+        await ctx.runAction(api.recommendations.generateAndStoreUserEmbedding, { userId });
+        // Fetch fresh user profile with populated embedding
+        user = await ctx.runQuery(api.users.getUserById, { userId });
+      } catch (err) {
+        console.error("Failed to generate user embedding dynamically:", err);
+      }
+    }
+
+    // ── 2. Fetch active events & generate missing embeddings dynamically ─────────────
     const events = await ctx.runQuery(api.events.listActiveEvents, {});
-    const activeEvents = events.filter(
+    let activeEvents = events.filter(
       (e) =>
         !e.isArchived && e.registrationDeadline > Date.now()
     );
 
     if (activeEvents.length === 0) return [];
+
+    if (genAIKey) {
+      let generatedAny = false;
+      for (const event of activeEvents) {
+        if (!event.embedding || event.embedding.length === 0) {
+          try {
+            console.log(`[AI recommendations] Dynamically generating vector embedding for event: ${event.title}`);
+            await ctx.runAction(api.recommendations.generateAndStoreEventEmbedding, { eventId: event._id });
+            generatedAny = true;
+          } catch (err) {
+            console.error(`Failed to generate event embedding dynamically for "${event.title}":`, err);
+          }
+        }
+      }
+      if (generatedAny) {
+        // Re-fetch active events to ensure all generated embeddings are in local memory
+        const freshEvents = await ctx.runQuery(api.events.listActiveEvents, {});
+        activeEvents = freshEvents.filter(
+          (e) =>
+            !e.isArchived && e.registrationDeadline > Date.now()
+        );
+      }
+    }
 
     // ── 3. Get friend IDs ──────────────────────────────────────────────────────
     const friendIds = await ctx.runQuery(api.friendships.getFriendIds, { userId });

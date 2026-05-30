@@ -58,23 +58,9 @@ export function QRScanner({ onScan, onError }) {
         html5QrCode = new Html5Qrcode("qr-scanner-element");
         scannerRef.current = html5QrCode;
 
-        // Try to start scanning with the back camera (environment) as default
-        // Request enhanced camera capabilities for better low-quality image handling
-        const constraints = {
-          facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          video: {
-            focusMode: "continuous",
-            torch: false,
-            whiteBalanceMode: "continuous",
-            exposureMode: "continuous",
-            colorTemperature: { ideal: 6500 },
-          }
-        };
-
+        // 4. Start scanning using selected camera ID
         await html5QrCode.start(
-          constraints,
+          selectedCamera.id,
           {
             fps: 30, // Higher FPS for better low-light and low-quality image handling
             qrbox: (width, height) => {
@@ -87,9 +73,6 @@ export function QRScanner({ onScan, onError }) {
             formatsToSupport: [
               Html5Qrcode.SupportedFormats.QR_CODE,
             ],
-            experimentalFeatures: {
-              useBarkoderIfAvailable: true,
-            },
           },
           (decodedText) => {
             if (mountedRef.current) {
@@ -101,22 +84,7 @@ export function QRScanner({ onScan, onError }) {
           }
         );
 
-        // Configure additional decoders for better low-quality image support
-        const QrcodeDecoderWorker = await import("html5-qrcode/esm/workers/qrcode_decoder_worker.js").catch(() => null);
-        if (html5QrCode && typeof html5QrCode.getState === "function") {
-          try {
-            // Use more aggressive scanning with multi-format decoder
-            const state = html5QrCode.getState();
-            if (state && state.decoderInstance) {
-              state.decoderInstance.setMediaBitMultiplier(2); // Boost signal strength for low quality
-            }
-          } catch (e) {
-            // Silently handle if advanced configuration unavailable
-          }
-        }
-
         if (mountedRef.current) {
-          setHasPermission(true);
           setIsScanning(true);
         }
       } catch (err) {
