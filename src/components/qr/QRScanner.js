@@ -1,5 +1,5 @@
 "use client";
-// modify to check git
+
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -73,6 +73,7 @@ export function QRScanner({ onScan, onError }) {
             formatsToSupport: [
               Html5Qrcode.SupportedFormats.QR_CODE,
             ],
+
           },
           (decodedText) => {
             if (mountedRef.current) {
@@ -190,8 +191,8 @@ export function QRScanner({ onScan, onError }) {
           <button
             onClick={handleFocus}
             className={`absolute bottom-20 px-4 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${isFocused
-                ? "bg-cyan-500/90 text-white shadow-lg shadow-cyan-500/50"
-                : "bg-cyan-500/30 text-cyan-200 hover:bg-cyan-500/50"
+              ? "bg-cyan-500/90 text-white shadow-lg shadow-cyan-500/50"
+              : "bg-cyan-500/30 text-cyan-200 hover:bg-cyan-500/50"
               } border border-cyan-400/50`}
           >
             📍 Focus

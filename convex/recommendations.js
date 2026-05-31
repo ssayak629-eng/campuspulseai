@@ -31,11 +31,17 @@ export const getRecommendations = action({
       }
     }
 
-    // ── 2. Fetch active events & generate missing embeddings dynamically ─────────────
-    const events = await ctx.runQuery(api.events.listActiveEvents, {});
+    // ── 2. Fetch active events & user registrations to exclude already registered events ──
+    const [events, userRegs] = await Promise.all([
+      ctx.runQuery(api.events.listActiveEvents, {}),
+      ctx.runQuery(api.registrations.getUserRegistrations, { userId }),
+    ]);
+
+    const registeredEventIds = new Set(userRegs.map((r) => r.eventId));
+
     let activeEvents = events.filter(
       (e) =>
-        !e.isArchived && e.registrationDeadline > Date.now()
+        !e.isArchived && e.registrationDeadline > Date.now() && !registeredEventIds.has(e._id)
     );
 
     if (activeEvents.length === 0) return [];
@@ -68,6 +74,7 @@ export const getRecommendations = action({
 
     // ── 4. Build friend activity map ───────────────────────────────────────────
     const eventFriendActivityMap = {};
+    const registeredFriendsMap = {};
     for (const event of activeEvents) {
       const [regs, likes, attendance] = await Promise.all([
         ctx.runQuery(api.registrations.getEventRegistrations, { eventId: event._id }),
@@ -80,10 +87,19 @@ export const getRecommendations = action({
         liked: [], // stored per-user; social inference from friends
         attended: attendance.map((a) => a.userId),
       };
+
+      registeredFriendsMap[event._id] = regs
+        .filter((r) => r.user && friendIds.includes(r.userId))
+        .map((r) => ({
+          _id: r.user._id,
+          name: r.user.name,
+          email: r.user.email,
+          image: r.user.image,
+        }));
     }
 
     // ── 5. Compute recommendations ─────────────────────────────────────────────
-    const recommendations = runRecommendationEngine(
+    const rawRecommendations = runRecommendationEngine(
       user,
       activeEvents,
       friendIds,
@@ -91,8 +107,12 @@ export const getRecommendations = action({
       limit
     );
 
+    const recommendations = rawRecommendations.map((rec) => ({
+      ...rec,
+      registeredFriends: registeredFriendsMap[rec.event._id] || [],
+    }));
+
     // ── 6. Generate and enrich with Gemini AI recommendation messages ─────────
-    const genAIKey = process.env.GEMINI_API_KEY;
     if (genAIKey && recommendations.length > 0) {
       try {
         const { GoogleGenerativeAI } = await import("@google/generative-ai");

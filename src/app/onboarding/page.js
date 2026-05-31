@@ -36,6 +36,7 @@ const ROLES = [
   { value: "student", label: "Student", desc: "Discover events and connect with campus" },
   { value: "organizer", label: "Organizer", desc: "Create and manage campus events" },
   { value: "volunteer", label: "Volunteer", desc: "Help run events and manage check-ins" },
+  { value: "provider", label: "Venue Provider", desc: "Register and rent out campus venues" },
 ];
 
 export default function OnboardingPage() {
@@ -81,7 +82,11 @@ export default function OnboardingPage() {
         skills: form.skills,
         role: form.role,
       });
-      router.push("/dashboard");
+      if (form.role === "provider") {
+        router.push("/provider");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       console.error(err);
       setLoading(false);

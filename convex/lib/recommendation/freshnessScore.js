@@ -9,11 +9,10 @@ export function computeFreshnessScore(createdAt) {
   const ageMs = Date.now() - createdAt;
   const DAY = 86400000;
 
-  if (ageMs <= DAY) return 1.0;           // Created today: max freshness
-  if (ageMs <= 3 * DAY) return 0.8;      // 1–3 days old
-  if (ageMs <= 7 * DAY) return 0.6;      // 3–7 days old
-  if (ageMs <= 14 * DAY) return 0.4;     // 1–2 weeks old
-  if (ageMs <= 30 * DAY) return 0.2;     // 2–4 weeks old
+  if (ageMs < 0) return 1.0;
 
-  return 0.05; // older than a month
+  // Smooth continuous exponential decay with a 7-day half-life, mapped between 0.05 and 1.0
+  const halfLife = 7 * DAY;
+  const decay = Math.exp(-ageMs / halfLife);
+  return 0.05 + decay * 0.95;
 }

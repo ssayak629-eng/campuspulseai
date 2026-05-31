@@ -114,9 +114,22 @@ export default function EventDetailPage() {
         </button>
 
         {/* Event Header */}
-        <div className="glass-card" style={{ padding: "2rem", marginBottom: "1.5rem" }}>
-          {/* Category + Status */}
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+        <div className="glass-card" style={{ padding: "0", overflow: "hidden", marginBottom: "1.5rem" }}>
+          {/* Poster Hero Banner */}
+          {event.posterUrl && (
+            <div style={{ width: "100%", height: "320px", position: "relative", overflow: "hidden", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <img
+                src={event.posterUrl}
+                alt={event.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(10,15,30,0) 40%, rgba(10,15,30,0.9) 100%)" }} />
+            </div>
+          )}
+
+          <div style={{ padding: "2rem" }}>
+            {/* Category + Status */}
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
             <span className="badge badge-primary">{event.category}</span>
             {userRole && (
               <span className="badge badge-warning">
@@ -140,17 +153,17 @@ export default function EventDetailPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem", marginBottom: "1.5rem" }}>
             {[
               { icon: Calendar, label: "Date", value: formatDate(event.startDate) },
-              { icon: Clock, label: "Time", value: formatDateTime(event.startDate).split(",")[1]?.trim() ?? "TBD" },
+              { icon: Clock, label: "Time", value: new Date(event.startDate).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) },
               { icon: MapPin, label: "Venue", value: event.venue },
               { icon: Users, label: "Registrations", value: `${registrations?.length ?? event.registrationCount ?? 0}${event.maxParticipants ? ` / ${event.maxParticipants}` : ""}` },
             ].map(({ icon: Icon, label, value }) => (
-              <div key={label} style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.75rem", background: "rgba(255,255,255,0.03)", borderRadius: "var(--radius-md)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div key={label} style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.75rem", background: "rgba(255,255,255,0.03)", borderRadius: "var(--radius-md)", border: "1px solid rgba(255,255,255,0.06)", fontFamily: "var(--font-sans)" }}>
                 <div style={{ width: 32, height: 32, borderRadius: "var(--radius-sm)", background: "rgba(99,102,241,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Icon size={15} color="#a5b4fc" />
                 </div>
                 <div>
-                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginBottom: "0.1rem" }}>{label}</div>
-                  <div style={{ fontSize: "0.875rem", fontWeight: 500 }}>{value}</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginBottom: "0.1rem", fontFamily: "var(--font-sans)", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.05em" }}>{label}</div>
+                  <div style={{ fontSize: "0.875rem", fontWeight: 800, fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>{value}</div>
                 </div>
               </div>
             ))}
@@ -243,6 +256,7 @@ export default function EventDetailPage() {
             )}
           </div>
         </div>
+      </div>
 
         {/* QR Modal */}
         {showQR && registration?.qrToken && (

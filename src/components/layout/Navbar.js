@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Building,
 } from "lucide-react";
 import { getRelativeTime } from "../../lib/utils/formatDate";
 
@@ -33,6 +34,7 @@ const navLinks = [
   { href: "/analytics", label: "Analytics", icon: BarChart2 },
   { href: "/qr-checkin", label: "QR Check-in", icon: QrCode },
   { href: "/profile", label: "Profile", icon: User },
+  { href: "/provider", label: "Venue Console", icon: Building },
 ];
 
 const notificationIcons = {
@@ -50,6 +52,13 @@ export default function Navbar() {
   const { user } = useCurrentUser();
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
     useNotifications(user?._id);
+
+  const filteredLinks = navLinks.filter(({ href }) => {
+    if (user?.role === "provider") {
+      return href === "/provider" || href === "/profile";
+    }
+    return href !== "/provider";
+  });
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -124,7 +133,7 @@ export default function Navbar() {
               style={{
                 width: 34,
                 height: 34,
-                borderRadius: "var(--radius-full)",
+                borderRadius: "0px",
                 background: "var(--color-accent)",
                 border: "2px solid var(--border)",
                 display: "flex",
@@ -161,7 +170,7 @@ export default function Navbar() {
               style={{
                 background: "var(--bg-card)",
                 border: "2px solid var(--border)",
-                borderRadius: "var(--radius-full)",
+                borderRadius: "0px",
                 width: 72,
                 height: 40,
                 cursor: "pointer",
@@ -186,7 +195,7 @@ export default function Navbar() {
                 style={{
                   width: 30,
                   height: 30,
-                  borderRadius: "var(--radius-full)",
+                  borderRadius: "0px",
                   background: theme === "light" ? "var(--color-accent)" : "var(--color-primary)",
                   border: "2px solid var(--border)",
                   display: "flex",
@@ -213,7 +222,7 @@ export default function Navbar() {
                   position: "relative",
                   background: "var(--bg-card)",
                   border: "2px solid var(--border)",
-                  borderRadius: "var(--radius-full)",
+                  borderRadius: "0px",
                   width: 40,
                   height: 40,
                   cursor: "pointer",
@@ -283,7 +292,7 @@ export default function Navbar() {
                             marginLeft: "0.5rem",
                             background: "var(--color-secondary)",
                             color: "white",
-                            borderRadius: "var(--radius-full)",
+                            borderRadius: "0px",
                             padding: "0.1rem 0.5rem",
                             fontSize: "0.68rem",
                           }}
@@ -392,7 +401,7 @@ export default function Navbar() {
                                 height: 8,
                                 background: "var(--color-secondary)",
                                 border: "1.5px solid var(--border)",
-                                borderRadius: "var(--radius-full)",
+                                borderRadius: "0px",
                                 flexShrink: 0,
                                 marginTop: 6,
                               }}
@@ -406,20 +415,42 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Venue Console button */}
+            {user?.role === "provider" && (
+              <Link 
+                href="/provider" 
+                className="btn-ghost hidden-mobile" 
+                style={{ 
+                  fontSize: "0.75rem", 
+                  padding: "0.5rem 1.35rem", 
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  borderRadius: "0px",
+                  marginRight: "0.5rem"
+                }}
+              >
+                Venue Console
+              </Link>
+            )}
+
             {/* Create Event structured as pill candy primary button */}
-            <Link 
-              href="/events/create" 
-              className="btn-primary" 
-              style={{ 
-                fontSize: "0.75rem", 
-                padding: "0.5rem 1.35rem", 
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center"
-              }}
-            >
-              + Create Event
-            </Link>
+            {user?.role !== "provider" && (
+              <Link 
+                href="/events/create" 
+                className="btn-primary" 
+                style={{ 
+                  fontSize: "0.75rem", 
+                  padding: "0.5rem 1.35rem", 
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  borderRadius: "0px"
+                }}
+              >
+                + Create Event
+              </Link>
+            )}
 
             {/* User Avatar fitted in thick-bordered circle */}
             <div style={{
@@ -429,7 +460,7 @@ export default function Navbar() {
               padding: 2,
               border: "2px solid var(--border)",
               background: "var(--bg-card)",
-              borderRadius: "var(--radius-full)",
+              borderRadius: "50%",
               boxShadow: "2px 2px 0px 0px var(--shadow-color)"
             }}>
               <UserButton afterSignOutUrl="/" />
@@ -447,7 +478,7 @@ export default function Navbar() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: "var(--radius-full)",
+                borderRadius: "0px",
                 boxShadow: "2px 2px 0px 0px var(--shadow-color)"
               }}
             >
@@ -483,7 +514,7 @@ export default function Navbar() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {navLinks.map(({ href, label, icon: Icon }) => {
+            {filteredLinks.map(({ href, label, icon: Icon }) => {
               const isActive = pathname.startsWith(href);
               return (
                 <Link

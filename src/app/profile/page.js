@@ -6,9 +6,10 @@ import { api } from "../../../convex/_generated/api";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import Navbar from "../../components/layout/Navbar";
 import { QRCodeDisplay } from "../../components/qr/QRCodeDisplay";
+import Link from "next/link";
 import {
   User, Mail, BookOpen, Calendar, Edit3, Save, X, Heart,
-  CheckCircle, Star, Award, Users, QrCode
+  CheckCircle, Star, Award, Users, QrCode, Building
 } from "lucide-react";
 import { formatDate, getRelativeTime } from "../../lib/utils/formatDate";
 
@@ -45,6 +46,7 @@ export default function ProfilePage() {
       department: user?.department ?? "",
       year: user?.year ?? "",
       interests: user?.interests ?? [],
+      role: user?.role ?? "student",
     });
     setEditing(true);
   };
@@ -57,6 +59,7 @@ export default function ProfilePage() {
       department: editForm.department,
       year: editForm.year,
       interests: editForm.interests,
+      role: editForm.role,
     });
     setEditing(false);
   };
@@ -124,14 +127,14 @@ export default function ProfilePage() {
 
             {/* Info */}
             <div style={{ flex: 1 }}>
-              {editing ? (
+               {editing ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                   <input
                     type="text"
                     value={editForm.name}
                     onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
                     className="input-field"
-                    style={{ fontSize: "1.25rem", fontWeight: 700 }}
+                    style={{ fontSize: "1.25rem", fontWeight: 700, borderRadius: "0px" }}
                     placeholder="Your name"
                   />
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
@@ -140,6 +143,7 @@ export default function ProfilePage() {
                       value={editForm.department}
                       onChange={(e) => setEditForm((f) => ({ ...f, department: e.target.value }))}
                       className="input-field"
+                      style={{ borderRadius: "0px" }}
                       placeholder="Department"
                     />
                     <input
@@ -147,8 +151,25 @@ export default function ProfilePage() {
                       value={editForm.year}
                       onChange={(e) => setEditForm((f) => ({ ...f, year: e.target.value }))}
                       className="input-field"
+                      style={{ borderRadius: "0px" }}
                       placeholder="Year"
                     />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.25rem" }}>
+                      Profile Role
+                    </label>
+                    <select
+                      value={editForm.role}
+                      onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
+                      className="input-field"
+                      style={{ borderRadius: "0px", width: "100%", background: "var(--bg-card)", color: "var(--text-primary)", border: "2px solid #CBD5E1", padding: "0.5rem 0.75rem" }}
+                    >
+                      <option value="student">Student</option>
+                      <option value="organizer">Organizer</option>
+                      <option value="volunteer">Volunteer</option>
+                      <option value="provider">Venue Provider</option>
+                    </select>
                   </div>
                 </div>
               ) : (
@@ -190,9 +211,30 @@ export default function ProfilePage() {
                   </button>
                 </>
               ) : (
-                <button onClick={startEditing} className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.85rem" }}>
-                  <Edit3 size={14} />Edit Profile
-                </button>
+                <>
+                  <button onClick={startEditing} className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.85rem" }}>
+                    <Edit3 size={14} />Edit Profile
+                  </button>
+                  {user.role !== "provider" && (
+                    <Link
+                      href="/provider"
+                      className="btn-primary animate-wiggle"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                        textDecoration: "none",
+                        fontSize: "0.85rem",
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                        borderRadius: "0px",
+                        boxShadow: "2px 2px 0px 0px var(--shadow-color)",
+                      }}
+                    >
+                      <Building size={14} />Register as Venue Provider
+                    </Link>
+                  )}
+                </>
               )}
             </div>
           </div>

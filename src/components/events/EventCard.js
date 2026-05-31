@@ -46,7 +46,7 @@ export function EventCard({ event, userId, liked = false, registered = false, co
         textDecoration: "none",
         background: "var(--bg-card)",
         border: "2px solid var(--border)",
-        borderRadius: "var(--radius-md)",
+        borderRadius: "0px",
         overflow: "hidden",
         transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
         height: "100%",

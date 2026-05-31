@@ -15,10 +15,10 @@ export function computeDeadlineScore(registrationDeadline) {
   const WEEK = 7 * DAY;
 
   if (timeLeft <= DAY) return 1.0;         // < 1 day: max urgency
-  if (timeLeft <= 2 * DAY) return 0.9;     // 1–2 days
-  if (timeLeft <= 3 * DAY) return 0.75;    // 2–3 days
-  if (timeLeft <= WEEK) return 0.5;        // within a week
-  if (timeLeft <= 2 * WEEK) return 0.25;   // within 2 weeks
 
-  return 0.1; // far away
+  // Continuous decay using a 1/(1+(days/k)^p) curve
+  const totalDays = timeLeft / DAY;
+  const k = 3; // shape parameter (steepness)
+  const p = 2; // curvature
+  return 1 / (1 + Math.pow(totalDays / k, p));
 }

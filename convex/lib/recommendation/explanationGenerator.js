@@ -3,10 +3,10 @@
  * Returns an array of explanation strings.
  */
 export function generateExplanation(scores, context) {
-  const reasons = [];
-
   const { semantic, social, trend, deadline, freshness } = scores;
   const {
+    user = null,
+    event = null,
     friendsRegistered = 0,
     friendsLiked = 0,
     friendsAttended = 0,
@@ -18,55 +18,30 @@ export function generateExplanation(scores, context) {
     isTrending = false,
   } = context;
 
-  // Semantic reasons
-  if (semantic >= 0.7) {
-    if (matchedInterests.length > 0) {
-      reasons.push(`Matches your interest in ${matchedInterests.slice(0, 2).join(" and ")}`);
-    }
-    if (matchedSkills.length > 0) {
-      reasons.push(`Relevant to your skills: ${matchedSkills.slice(0, 2).join(", ")}`);
-    }
-    if (attendedSimilarEvents.length > 0) {
-      reasons.push(`Similar to "${attendedSimilarEvents[0]}" which you attended`);
-    }
-    if (reasons.length === 0) {
-      reasons.push("Highly relevant to your profile");
-    }
-  } else if (semantic >= 0.4) {
-    reasons.push("Matches some of your interests");
+  let reason = "";
+
+  // 1. Prior attendance history match
+  if (attendedSimilarEvents.length > 0) {
+    reason = `You would like this because it is similar to "${attendedSimilarEvents[0]}" which you attended!`;
+  }
+  // 2. Direct user interest match
+  else if (matchedInterests.length > 0) {
+    reason = `You'd love this because it perfectly matches your passion for ${matchedInterests[0]}!`;
+  }
+  // 3. Direct user skill match
+  else if (matchedSkills.length > 0) {
+    reason = `You would like this because it is a great way to grow your ${matchedSkills[0]} skills!`;
+  }
+  // 4. Friend activity/social match
+  else if (friendsRegistered > 0 || friendsLiked > 0) {
+    reason = `You would like this because your campus friends are already registered and going!`;
+  }
+  // 5. Default Fallback
+  else {
+    reason = "You might like this";
   }
 
-  // Social reasons
-  if (friendsRegistered > 0) {
-    reasons.push(
-      `${friendsRegistered} friend${friendsRegistered > 1 ? "s" : ""} registered for this`
-    );
-  }
-  if (friendsLiked > 0) {
-    reasons.push(
-      `${friendsLiked} friend${friendsLiked > 1 ? "s" : ""} liked this event`
-    );
-  }
-  if (friendsAttended > 0) {
-    reasons.push(
-      `${friendsAttended} friend${friendsAttended > 1 ? "s" : ""} attended this previously`
-    );
-  }
-
-  // Trend reason
-  if (isTrending || trend >= 0.6) {
-    reasons.push("Trending in this category");
-  }
-
-  // Deadline reason
-  if (deadlineSoon || deadline >= 0.7) {
-    reasons.push("Registration deadline is approaching soon");
-  }
-
-  // Freshness reason
-  if (isNew || freshness >= 0.8) {
-    reasons.push("Newly added event");
-  }
-
-  return reasons.length > 0 ? reasons : ["Recommended based on your campus activity"];
+  // Ensure it is under 20 words and returned as a single-element array for React compatibility
+  const words = reason.split(/\s+/).slice(0, 20).join(" ");
+  return [words];
 }

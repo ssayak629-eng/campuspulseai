@@ -32,30 +32,55 @@
   --font-display: "Outfit", system-ui, sans-serif;
 
   /* Playful Radii */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 }
 
 .dark {
-  /* Memphis Playful Geometric Dark Mode */
-  --bg-primary: #0F172A;           /* Deep dark slate */
-  --bg-secondary: #0F172A;
-  --bg-card: #1E293B;              /* Slate 800 cards */
-  --bg-elevated: #0F172A;
+  /* Sleek, Premium Cyber Neon Dark Mode */
+  --bg-primary: #090D1A;           /* Deep cyber space dark blue */
+  --bg-secondary: #090D1A;
+  --bg-card: #121829;              /* High-fidelity dark navy cards */
+  --bg-elevated: #1C233D;          /* Translucent elevated panels */
 
-  --text-primary: #FFFDF5;         /* Warm eggshell text */
-  --text-secondary: #94A3B8;       /* Slate 400 */
-  --text-muted: #64748B;
+  --text-primary: #F8FAFC;         /* Crisp slate white */
+  --text-secondary: #94A3B8;       /* Tech slate 400 */
+  --text-muted: #475569;           /* Deep slate 600 */
 
-  --color-primary: #A78BFA;        /* Brightened Violet for high contrast */
-  --color-primary-hover: #8B5CF6;
+  --color-primary: #8B5CF6;        /* Radiant neon violet */
+  --color-primary-hover: #A78BFA;  /* Bright soft violet */
   
-  --border: #FFFDF5;               /* Chunky cream borders! */
-  --border-hover: #FFFDF5;
-  --shadow-color: #000000;         /* Pure black pop shadows */
-  --dot-color: rgba(255, 253, 245, 0.12);
+  --border: #232C47;               /* Subtle premium dark outline */
+  --border-hover: #8B5CF6;         /* Glow border on hover */
+  --shadow-color: #020617;         /* Deep pure dark shadow */
+  --dot-color: rgba(139, 92, 246, 0.05); /* Soft glowing violet grid dots */
+}
+
+/* Translucent Glassmorphism Card Overrides in Dark Mode */
+.dark .glass-card, .dark .cyber-card {
+  background: rgba(18, 24, 41, 0.75) !important;
+  border: 2px solid var(--border) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 4px 4px 0px 0px var(--shadow-color) !important;
+}
+
+.dark .glass-card:hover, .dark .cyber-card:hover {
+  border-color: var(--color-primary) !important;
+  box-shadow: 6px 6px 0px 0px var(--color-secondary) !important; /* Glowing Pink pop shadow */
+}
+
+.dark .pop-shadow-card {
+  border: 2px solid var(--border) !important;
+  box-shadow: 4px 4px 0px 0px var(--shadow-color) !important;
+  background: var(--bg-card) !important;
+}
+
+.dark .pop-shadow-card:hover {
+  border-color: var(--color-primary) !important;
+  box-shadow: 6px 6px 0px 0px var(--color-primary) !important;
 }
 
 /* ── Base Playful Reset ─────────────────────────────────────────────────── */
@@ -147,7 +172,7 @@ body {
 .glass-card, .cyber-card {
   background: var(--bg-card);
   border: 2px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: 0px;
   box-shadow: 5px 5px 0px 0px var(--shadow-color);
   position: relative;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -203,7 +228,7 @@ body {
   letter-spacing: 0.05em;
   padding: 0.65rem 1.75rem;
   border: 2px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   cursor: pointer;
   box-shadow: 4px 4px 0px 0px var(--shadow-color);
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -233,7 +258,7 @@ body {
   letter-spacing: 0.05em;
   padding: 0.65rem 1.75rem;
   border: 2px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   cursor: pointer;
   box-shadow: 4px 4px 0px 0px var(--shadow-color);
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -257,7 +282,7 @@ body {
   letter-spacing: 0.02em;
   padding: 0.65rem 1.5rem;
   border: 2px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0px;
   cursor: pointer;
   box-shadow: 2px 2px 0px 0px var(--shadow-color);
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);

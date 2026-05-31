@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import {
   Zap,
   Users,
@@ -68,7 +68,7 @@ const stats = [
 ];
 
 export default function LandingPage() {
-  const { isSignedIn } = useUser();
+  const { user, isSignedIn } = useCurrentUser();
 
   return (
     <div
@@ -123,21 +123,44 @@ export default function LandingPage() {
             </span>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
             {isSignedIn ? (
-              <Link 
-                href="/dashboard" 
-                className="btn-primary" 
-                style={{ 
-                  textDecoration: "none", 
-                  fontSize: "0.75rem",
-                  padding: "0.45rem 1.25rem"
-                }}
-              >
-                [ Go to Dashboard ]
-              </Link>
+              user?.role === "provider" ? (
+                <Link 
+                  href="/provider" 
+                  className="btn-primary animate-wiggle" 
+                  style={{ 
+                    textDecoration: "none", 
+                    fontSize: "0.75rem",
+                    padding: "0.45rem 1.25rem",
+                    borderRadius: "0px"
+                  }}
+                >
+                  Venue Console <ArrowRight size={12} strokeWidth={2.5} />
+                </Link>
+              ) : (
+                <Link 
+                  href="/dashboard" 
+                  className="btn-primary" 
+                  style={{ 
+                    textDecoration: "none", 
+                    fontSize: "0.75rem",
+                    padding: "0.45rem 1.25rem",
+                    borderRadius: "0px"
+                  }}
+                >
+                  [ Go to Dashboard ]
+                </Link>
+              )
             ) : (
               <>
+                <Link
+                  href="/provider"
+                  className="btn-ghost"
+                  style={{ textDecoration: "none", fontSize: "0.75rem", padding: "0.45rem 1.15rem", color: "var(--color-primary)", fontWeight: 700 }}
+                >
+                  List Your Venue
+                </Link>
                 <Link 
                   href="/sign-in" 
                   className="btn-ghost" 
@@ -155,7 +178,8 @@ export default function LandingPage() {
                   style={{ 
                     textDecoration: "none", 
                     fontSize: "0.75rem",
-                    padding: "0.45rem 1.25rem"
+                    padding: "0.45rem 1.25rem",
+                    borderRadius: "0px"
                   }}
                 >
                   Get Started
@@ -244,21 +268,57 @@ export default function LandingPage() {
         </p>
 
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link
-            href={isSignedIn ? "/dashboard" : "/sign-up"}
-            className="btn-primary pop-shadow animate-wiggle"
-            style={{
-              textDecoration: "none",
-              fontSize: "0.85rem",
-              padding: "0.85rem 2.2rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            {isSignedIn ? "Go to Dashboard" : "Start Exploring"}
-            <ArrowRight size={14} strokeWidth={2.5} />
-          </Link>
+          {isSignedIn && user?.role === "provider" ? (
+            <Link
+              href="/provider"
+              className="btn-primary pop-shadow animate-wiggle"
+              style={{
+                textDecoration: "none",
+                fontSize: "0.85rem",
+                padding: "0.85rem 2.2rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                borderRadius: "0px",
+              }}
+            >
+              Enter Venue Console
+              <ArrowRight size={14} strokeWidth={2.5} />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href={isSignedIn ? "/dashboard" : "/sign-up"}
+                className="btn-primary pop-shadow animate-wiggle"
+                style={{
+                  textDecoration: "none",
+                  fontSize: "0.85rem",
+                  padding: "0.85rem 2.2rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  borderRadius: "0px",
+                }}
+              >
+                {isSignedIn ? "Go to Dashboard" : "Start Exploring"}
+                <ArrowRight size={14} strokeWidth={2.5} />
+              </Link>
+              <Link
+                href="/provider"
+                className="btn-ghost"
+                style={{
+                  textDecoration: "none",
+                  fontSize: "0.85rem",
+                  padding: "0.85rem 2.2rem",
+                  borderColor: "var(--color-primary)",
+                  color: "var(--color-primary)",
+                  borderRadius: "0px",
+                }}
+              >
+                List Your Venue
+              </Link>
+            </>
+          )}
           <Link
             href="/events"
             className="btn-ghost"
@@ -266,6 +326,7 @@ export default function LandingPage() {
               textDecoration: "none",
               fontSize: "0.85rem",
               padding: "0.85rem 2.2rem",
+              borderRadius: "0px",
             }}
           >
             Browse Events

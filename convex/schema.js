@@ -12,7 +12,8 @@ export default defineSchema({
       v.literal("student"),
       v.literal("organizer"),
       v.literal("volunteer"),
-      v.literal("admin")
+      v.literal("admin"),
+      v.literal("provider")
     ),
     department: v.optional(v.string()),
     year: v.optional(v.string()),
@@ -44,6 +45,34 @@ export default defineSchema({
     likeCount: v.optional(v.number()),
     registrationCount: v.optional(v.number()),
     isArchived: v.optional(v.boolean()),
+    budget: v.optional(v.number()),
+    facilitiesRequired: v.optional(
+      v.object({
+        ac: v.boolean(),
+        wifi: v.boolean(),
+        projector: v.boolean(),
+        smartBoard: v.boolean(),
+        soundSystem: v.boolean(),
+        microphone: v.boolean(),
+        parking: v.boolean(),
+        generatorBackup: v.boolean(),
+        drinkingWater: v.boolean(),
+        cafeteria: v.boolean(),
+        washroom: v.boolean(),
+        wheelchairAccessible: v.boolean(),
+        securityStaff: v.boolean(),
+        stage: v.boolean(),
+        greenRoom: v.boolean(),
+        computerLab: v.boolean(),
+        powerSockets: v.boolean(),
+        internetSpeedMbps: v.number(),
+        hostelNearby: v.boolean(),
+        accommodationAvailable: v.boolean(),
+        foodAvailable: v.boolean(),
+        recordingEquipment: v.boolean(),
+        livestreamSupport: v.boolean(),
+      })
+    ),
     createdAt: v.number(),
   })
     .index("by_created_by", ["createdBy"])
@@ -161,7 +190,8 @@ export default defineSchema({
       v.literal("event_reminder"),
       v.literal("team_invite"),
       v.literal("friend"),
-      v.literal("general")
+      v.literal("general"),
+      v.literal("venue")
     ),
     isRead: v.boolean(),
     relatedId: v.optional(v.string()),
@@ -179,4 +209,171 @@ export default defineSchema({
     feedbackScore: v.optional(v.float64()),
     archivedAt: v.number(),
   }).index("by_event", ["eventId"]),
+
+  // ─── Venue Providers ────────────────────────────────────────────────────────
+  venueProviders: defineTable({
+    userId: v.id("users"),
+    organizationName: v.string(),
+    description: v.optional(v.string()),
+    contactEmail: v.string(),
+    contactPhone: v.string(),
+    verified: v.boolean(),
+    averageRating: v.optional(v.float64()),
+    totalRatings: v.optional(v.float64()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // ─── Venues ─────────────────────────────────────────────────────────────────
+  venues: defineTable({
+    providerId: v.id("venueProviders"),
+    name: v.string(),
+    description: v.string(),
+    venueType: v.string(),
+    city: v.string(),
+    state: v.string(),
+    address: v.string(),
+    latitude: v.optional(v.float64()),
+    longitude: v.optional(v.float64()),
+    seatingCapacity: v.number(),
+    standingCapacity: v.number(),
+    facilities: v.object({
+      ac: v.boolean(),
+      wifi: v.boolean(),
+      projector: v.boolean(),
+      smartBoard: v.boolean(),
+      soundSystem: v.boolean(),
+      microphone: v.boolean(),
+      parking: v.boolean(),
+      generatorBackup: v.boolean(),
+      drinkingWater: v.boolean(),
+      cafeteria: v.boolean(),
+      washroom: v.boolean(),
+      wheelchairAccessible: v.boolean(),
+      securityStaff: v.boolean(),
+      stage: v.boolean(),
+      greenRoom: v.boolean(),
+      computerLab: v.boolean(),
+      powerSockets: v.boolean(),
+      internetSpeedMbps: v.number(),
+      hostelNearby: v.boolean(),
+      accommodationAvailable: v.boolean(),
+      foodAvailable: v.boolean(),
+      recordingEquipment: v.boolean(),
+      livestreamSupport: v.boolean(),
+    }),
+    rooms: v.array(
+      v.object({
+        roomNumber: v.string(),
+        roomName: v.string(),
+        roomType: v.string(),
+        floor: v.number(),
+        length: v.number(),
+        width: v.number(),
+        areaSqMeters: v.number(),
+        capacity: v.number(),
+        tableCount: v.number(),
+        chairCount: v.number(),
+        hasAC: v.boolean(),
+        hasProjector: v.boolean(),
+        hasSmartBoard: v.boolean(),
+        imageUrls: v.array(v.string()),
+      })
+    ),
+    pricing: v.object({
+      hourlyRate: v.number(),
+      minimumBookingHours: v.number(),
+      refundableDeposit: v.number(),
+    }),
+    imageUrls: v.array(v.string()),
+    averageRating: v.optional(v.float64()),
+    totalRatings: v.optional(v.float64()),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_provider", ["providerId"])
+    .index("by_active", ["isActive"]),
+
+  // ─── Venue Requests ──────────────────────────────────────────────────────────
+  venueRequests: defineTable({
+    eventId: v.id("events"),
+    venueId: v.id("venues"),
+    organizerId: v.id("users"),
+    providerId: v.id("venueProviders"),
+    matchScore: v.float64(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("accepted"),
+      v.literal("rejected"),
+      v.literal("confirmed"),
+      v.literal("declined")
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_event", ["eventId"])
+    .index("by_venue", ["venueId"])
+    .index("by_organizer", ["organizerId"])
+    .index("by_provider", ["providerId"])
+    .index("by_event_venue", ["eventId", "venueId"]),
+
+  // ─── Venue Bookings ──────────────────────────────────────────────────────────
+  venueBookings: defineTable({
+    eventId: v.id("events"),
+    venueId: v.id("venues"),
+    organizerId: v.id("users"),
+    providerId: v.id("venueProviders"),
+    durationHours: v.number(),
+    billableHours: v.number(),
+    hourlyRate: v.number(),
+    calculatedCost: v.number(),
+    refundableDeposit: v.number(),
+    totalPayable: v.number(),
+    bookingStatus: v.union(
+      v.literal("confirmed"),
+      v.literal("cancelled"),
+      v.literal("completed")
+    ),
+    bookedAt: v.number(),
+  })
+    .index("by_event", ["eventId"])
+    .index("by_venue", ["venueId"])
+    .index("by_provider", ["providerId"])
+    .index("by_organizer", ["organizerId"]),
+
+  // ─── Venue Availability Calendar ─────────────────────────────────────────────
+  venueAvailabilityCalendar: defineTable({
+    venueId: v.id("venues"),
+    startDate: v.number(),
+    endDate: v.number(),
+    status: v.union(
+      v.literal("available"),
+      v.literal("reserved"),
+      v.literal("booked"),
+      v.literal("blocked"),
+      v.literal("maintenance")
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_venue", ["venueId"])
+    .index("by_venue_dates", ["venueId", "startDate", "endDate"]),
+
+  // ─── Venue Ratings ───────────────────────────────────────────────────────────
+  venueRatings: defineTable({
+    venueId: v.id("venues"),
+    eventId: v.id("events"),
+    organizerId: v.id("users"),
+    rating: v.number(),
+    review: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_venue", ["venueId"]),
+
+  // ─── Provider Ratings ────────────────────────────────────────────────────────
+  providerRatings: defineTable({
+    providerId: v.id("venueProviders"),
+    organizerId: v.id("users"),
+    eventId: v.id("events"),
+    rating: v.number(),
+    review: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_provider", ["providerId"]),
 });

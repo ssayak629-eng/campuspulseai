@@ -57,6 +57,8 @@ export function runRecommendationEngine(
     ).length;
 
     const context = {
+      user,
+      event,
       friendsRegistered,
       friendsLiked,
       friendsAttended,

@@ -82,7 +82,8 @@ export const completeOnboarding = mutation({
       v.literal("student"),
       v.literal("organizer"),
       v.literal("volunteer"),
-      v.literal("admin")
+      v.literal("admin"),
+      v.literal("provider")
     ),
   },
   handler: async (ctx, args) => {
@@ -112,7 +113,8 @@ export const updateUser = mutation({
         v.literal("student"),
         v.literal("organizer"),
         v.literal("volunteer"),
-        v.literal("admin")
+        v.literal("admin"),
+        v.literal("provider")
       )
     ),
   },

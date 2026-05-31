@@ -41,8 +41,9 @@ function ScoreBreakdown({ scores }) {
 }
 
 function RecommendationCard({ recommendation, index }) {
-  const { event, scores, finalScore, explanation } = recommendation;
+  const { event, scores, finalScore, explanation, registeredFriends = [] } = recommendation;
   const [expanded, setExpanded] = useState(false);
+  const [showFriendsDropdown, setShowFriendsDropdown] = useState(false);
   const matchLabel = getMatchLabel(finalScore);
 
   const matchColor = finalScore >= 0.75 ? "#10b981" : finalScore >= 0.55 ? "#a5b4fc" : finalScore >= 0.35 ? "#fcd34d" : "#9ca3af";
@@ -112,13 +113,121 @@ function RecommendationCard({ recommendation, index }) {
 
           {/* Explanations */}
           <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-            {explanation.slice(0, 3).map((reason, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+            {Array.isArray(explanation) ? (
+              explanation.slice(0, 3).map((reason, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                  <Sparkles size={11} color="#a5b4fc" />
+                  {reason}
+                </div>
+              ))
+            ) : typeof explanation === "string" && explanation ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
                 <Sparkles size={11} color="#a5b4fc" />
-                {reason}
+                {explanation}
               </div>
-            ))}
+            ) : null}
           </div>
+
+          {/* Registered Friends Toggle / Dropdown */}
+          {registeredFriends.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginTop: "0.75rem" }}>
+              <button
+                onClick={() => setShowFriendsDropdown(!showFriendsDropdown)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: "rgba(255, 255, 255, 0.02)",
+                  border: "1px solid rgba(255, 255, 255, 0.05)",
+                  padding: "0.4rem 0.75rem",
+                  borderRadius: "0px",
+                  cursor: "pointer",
+                  width: "fit-content",
+                  color: "var(--text-secondary)",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+              >
+                <div style={{ display: "flex", marginLeft: "0.25rem" }}>
+                  {registeredFriends.slice(0, 3).map((friend, idx) => (
+                    <div
+                      key={friend._id}
+                      style={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        background: "var(--bg-secondary)",
+                        border: "1.5px solid var(--bg-primary)",
+                        backgroundImage: friend.image ? `url(${friend.image})` : "none",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.55rem",
+                        fontWeight: 700,
+                        color: "white",
+                        marginLeft: idx > 0 ? -5 : 0,
+                        zIndex: 3 - idx,
+                      }}
+                    >
+                      {!friend.image && friend.name.charAt(0).toUpperCase()}
+                    </div>
+                  ))}
+                </div>
+                <span style={{ fontSize: "0.72rem", fontWeight: 500 }}>
+                  {showFriendsDropdown ? "Hide" : "Show"} friends who registered ({registeredFriends.length})
+                </span>
+                <ChevronDown size={12} style={{ transform: showFriendsDropdown ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }} />
+              </button>
+
+              {/* Tiny Dropdown List */}
+              {showFriendsDropdown && (
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.35rem",
+                  padding: "0.5rem 0.75rem",
+                  background: "rgba(255, 255, 255, 0.015)",
+                  border: "1px solid rgba(255, 255, 255, 0.04)",
+                  borderRadius: "var(--radius-md)",
+                  marginLeft: "0.25rem",
+                  maxWidth: "280px",
+                  animation: "fadeIn 0.2s ease",
+                }}>
+                  {registeredFriends.map((friend) => (
+                    <div key={friend._id} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "var(--bg-secondary)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          backgroundImage: friend.image ? `url(${friend.image})` : "none",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.6rem",
+                          fontWeight: 700,
+                          color: "white",
+                        }}
+                      >
+                        {!friend.image && friend.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-primary)" }}>{friend.name}</span>
+                        {friend.email && <span style={{ fontSize: "0.6rem", color: "var(--text-muted)" }}>{friend.email}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Score circle */}
@@ -152,7 +261,7 @@ function RecommendationCard({ recommendation, index }) {
         <Link
           href={`/events/${event._id}`}
           className="btn-primary"
-          style={{ textDecoration: "none", fontSize: "0.8rem", padding: "0.4rem 0.875rem", display: "flex", alignItems: "center", gap: "0.3rem" }}
+          style={{ textDecoration: "none", fontSize: "0.8rem", padding: "0.4rem 0.875rem", display: "flex", alignItems: "center", gap: "0.35rem" }}
         >
           View Event <ArrowRight size={13} />
         </Link>
@@ -175,12 +284,19 @@ export default function RecommendationsPage() {
     setMounted(true);
   }, []);
 
+  // Fetch recommendations automatically as soon as the user is loaded
+  useEffect(() => {
+    if (user) {
+      fetchRecommendations();
+    }
+  }, [user]);
+
   const fetchRecommendations = async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
     try {
-      const results = await getRecommendations({ userId: user._id, limit: 15 });
+      const results = await getRecommendations({ userId: user._id, limit: 5 });
       setRecommendations(results);
     } catch (err) {
       setError(err.message);
@@ -214,7 +330,7 @@ export default function RecommendationsPage() {
           <button
             id="get-recommendations-btn"
             onClick={fetchRecommendations}
-            disabled={!mounted || loading || !user}
+            disabled={loading || !user}
             className="btn-primary"
             style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}
           >
@@ -257,7 +373,7 @@ export default function RecommendationsPage() {
             </p>
             <button
               onClick={fetchRecommendations}
-              disabled={!mounted || !user}
+              disabled={!user}
               className="btn-primary"
               style={{ fontSize: "1rem", padding: "0.75rem 2rem" }}
             >

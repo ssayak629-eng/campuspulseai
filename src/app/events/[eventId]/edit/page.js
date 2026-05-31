@@ -204,7 +204,7 @@ export default function EditEventPage() {
       const toTimestamp = (str) =>
         str ? new Date(str).getTime() : Date.now() + 86400000;
 
-      await updateEvent({
+      const updateArgs = {
         eventId,
         title: form.title,
         description: form.description,
@@ -217,8 +217,14 @@ export default function EditEventPage() {
         maxParticipants: form.maxParticipants
           ? parseInt(form.maxParticipants)
           : undefined,
-        posterUrl: form.posterUrl || undefined,
-      });
+      };
+
+      // Only send posterUrl if user changed it (to avoid re-sending huge base64 strings)
+      if (form.posterUrl !== event.posterUrl) {
+        updateArgs.posterUrl = form.posterUrl || undefined;
+      }
+
+      await updateEvent(updateArgs);
 
       router.push(`/events/${eventId}`);
     } catch (err) {

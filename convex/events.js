@@ -33,10 +33,14 @@ export const listActiveEvents = query({
 export const getEventById = query({
   args: { eventId: v.id("events") },
   handler: async (ctx, { eventId }) => {
-    const event = await ctx.db.get(eventId);
-    if (!event) return null;
-    const creator = await ctx.db.get(event.createdBy);
-    return { ...event, creator };
+     const event = await ctx.db.get(eventId);
+     if (!event) return null;
+     const creator = await ctx.db.get(event.createdBy);
+
+     return { 
+       ...event, 
+       creator 
+     };
   },
 });
 

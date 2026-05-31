@@ -8,12 +8,14 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   Settings, Plus, BarChart2, Users, Calendar, Edit3,
-  Archive, Eye, ChevronRight, Shield, Trash2, UserPlus, Loader2
+  Archive, Eye, ChevronRight, Shield, Trash2, UserPlus, Loader2, Building
 } from "lucide-react";
 import { formatDate, isDeadlinePassed } from "../../lib/utils/formatDate";
 
-function EventRow({ event, onArchive }) {
+function EventRow({ event, venueState, onArchive }) {
   const deadlinePassed = isDeadlinePassed(event.registrationDeadline);
+  const bookingStatus = venueState?.status;
+  const bookedVenueName = venueState?.venueName;
 
   return (
     <div
@@ -47,15 +49,47 @@ function EventRow({ event, onArchive }) {
           <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
             <Eye size={11} />{event.viewCount ?? 0} views
           </span>
+          {bookingStatus === "confirmed" ? (
+            <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", color: "#10b981", fontWeight: "700" }}>
+              <Building size={11} /> Secured: {bookedVenueName}
+            </span>
+          ) : bookingStatus === "accepted" ? (
+            <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", color: "#f59e0b", fontWeight: "700" }}>
+              <Building size={11} /> Approved: {bookedVenueName}
+            </span>
+          ) : bookingStatus === "pending" ? (
+            <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", color: "#6366f1", fontWeight: "600" }}>
+              <Building size={11} /> Requested: {bookedVenueName}
+            </span>
+          ) : (
+            <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              <Building size={11} /> Venue: {event.venue}
+            </span>
+          )}
         </div>
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        {bookingStatus === "confirmed" || bookingStatus === "accepted" ? (
+          <Link
+            href={`/organizer/venue?eventId=${event._id}`}
+            style={{ display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", background: "#10b981", border: "2px solid var(--border)", borderRadius: "0px", padding: "0.4rem 0.75rem", color: "#FFFFFF", fontSize: "0.78rem", fontWeight: 800, textTransform: "uppercase", boxShadow: "2px 2px 0px 0px var(--shadow-color)", cursor: "pointer", transition: "all 0.2s" }}
+          >
+            <Building size={13} /> Venue Confirmed
+          </Link>
+        ) : (
+          <Link
+            href={`/organizer/venue?eventId=${event._id}`}
+            style={{ display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", background: "var(--color-primary)", border: "2px solid var(--border)", borderRadius: "0px", padding: "0.4rem 0.75rem", color: "#FFFFFF", fontSize: "0.78rem", fontWeight: 800, textTransform: "uppercase", boxShadow: "2px 2px 0px 0px var(--shadow-color)", cursor: "pointer", transition: "all 0.2s" }}
+          >
+            <Building size={13} /> Find Venue
+          </Link>
+        )}
         <Link
           href={`/events/${event._id}`}
-          style={{ display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "var(--radius-md)", padding: "0.4rem 0.75rem", color: "var(--text-secondary)", fontSize: "0.78rem", transition: "all 0.2s" }}
+          style={{ display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "0px", padding: "0.4rem 0.75rem", color: "var(--text-secondary)", fontSize: "0.78rem", transition: "all 0.2s" }}
         >
-          <Eye size={13} />View
+          <Eye size={13} /> View
         </Link>
         {(event.organizerRole === "owner" || event.organizerRole === "organizer") && (
           <>
@@ -63,13 +97,13 @@ function EventRow({ event, onArchive }) {
               href={`/analytics?event=${event._id}`}
               style={{ display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: "var(--radius-md)", padding: "0.4rem 0.75rem", color: "#a5b4fc", fontSize: "0.78rem" }}
             >
-              <BarChart2 size={13} />Analytics
+              <BarChart2 size={13} /> Analytics
             </Link>
             <Link
               href="/qr-checkin"
               style={{ display: "flex", alignItems: "center", gap: "0.35rem", textDecoration: "none", background: "rgba(6,182,212,0.1)", border: "1px solid rgba(6,182,212,0.2)", borderRadius: "var(--radius-md)", padding: "0.4rem 0.75rem", color: "#67e8f9", fontSize: "0.78rem" }}
             >
-              <Users size={13} />Check-in
+              <Users size={13} /> Check-in
             </Link>
           </>
         )}
@@ -78,7 +112,7 @@ function EventRow({ event, onArchive }) {
             onClick={() => onArchive(event._id)}
             style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: "var(--radius-md)", padding: "0.4rem 0.75rem", color: "#fcd34d", fontSize: "0.78rem", cursor: "pointer" }}
           >
-            <Archive size={13} />Archive
+            <Archive size={13} /> Archive
           </button>
         )}
       </div>
@@ -99,6 +133,26 @@ export default function OrganizerPage() {
     api.analytics.getOrganizerDashboardStats,
     user ? { userId: user._id } : "skip"
   );
+  const venueRequests = useQuery(
+    api.venues.getOrganizerVenueRequests,
+    user ? { organizerId: user._id } : "skip"
+  );
+
+  const venueRequestsMap = {};
+  if (venueRequests) {
+    venueRequests.forEach(({ request, venue }) => {
+      const eventId = request.eventId;
+      const current = venueRequestsMap[eventId];
+      if (!current || 
+          request.status === "confirmed" || 
+          (request.status === "accepted" && current.status !== "confirmed")) {
+        venueRequestsMap[eventId] = {
+          status: request.status,
+          venueName: venue.name,
+        };
+      }
+    });
+  }
 
   const handleArchive = async (eventId) => {
     if (!confirm("Archive this event? This will mark it as complete and create friendships between team members.")) return;
@@ -190,11 +244,12 @@ export default function OrganizerPage() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {activeEvents.map((event) => (
-                <EventRow key={event._id} event={event} onArchive={handleArchive} />
+                <EventRow key={event._id} event={event} venueState={venueRequestsMap[event._id]} onArchive={handleArchive} />
               ))}
             </div>
           )}
         </div>
+
 
         {/* Archived Events */}
         {archivedEvents.length > 0 && (
